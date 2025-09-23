@@ -9,7 +9,7 @@ pygame.init()
 
 ANCHO, ALTO = 800, 800
 ventana = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Proyecto Pac-Man")
+pygame.display.set_caption("Proyecto pacman")
 
 try:
     background_image = pygame.image.load("pacmanmap.png").convert()
@@ -71,7 +71,7 @@ class Personaje:
 
 class Pacman(Personaje):
     def __init__(self, x, y):
-        super().__init__(x, y, velocidad=25)
+        super().__init__(x, y, velocidad=31)
         self.SELECTOR = 1
         self.angulo = 0
         self.nodo_anterior = None
@@ -126,7 +126,7 @@ class Pacman(Personaje):
 
 class Fantasma(Personaje):
     def __init__(self, x, y, color):
-        super().__init__(x, y, velocidad=24)
+        super().__init__(x, y, velocidad=30)
         self.color_original = color
         self.color = color
         self.nodo_anterior = None
