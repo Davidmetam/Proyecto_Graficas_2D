@@ -56,12 +56,12 @@ def dibujar_pacman_cerrado(x, y):
     dibujador.desactivar_relleno()
 
 def dibujar_puntos_comida(x, y):
-    dibujador.activar_relleno(COLOR_BOLITAS_PACMAN)
-    dibujador.dibujar_circulo_coordenadas_polares(x, y, 4, COLOR_BOLITAS_PACMAN)
+    dibujador.activar_relleno(BLANCO)
+    dibujador.dibujar_circulo_coordenadas_polares(x, y, 3, BLANCO)
     dibujador.desactivar_relleno()
 
 def dibujar_puntos_bonus(x, y):
-    dibujador.activar_relleno(COLOR_BOLITAS_PACMAN)
+    dibujador.activar_relleno(AMARILLO)
     dibujador.dibujar_circulo_coordenadas_polares(x, y, 10, COLOR_BOLITAS_PACMAN)
     dibujador.desactivar_relleno()
 
@@ -107,44 +107,66 @@ def dibujar_fantasma(x, y, color):
     dibujador.dibujar_circulo_coordenadas_polares(right_eye_x, eye_y, pupil_radius, NEGRO)
     dibujador.desactivar_relleno()
 
+caminos_laterales = [
+    (40 , 40 , 180, 40 ), (180, 40 , 350, 40 ), (40 , 40 , 40 , 140),
+    (40 , 140, 40 , 220), (40 , 220, 180, 220), (350, 40 , 350, 140),
+    (40 , 140, 180, 140), (180, 140, 270, 140), (270, 140, 350, 140),
+    (270, 140, 270, 220), (270, 220, 350, 220), (350, 220, 350, 290),
+    (350, 290, 270, 290), (270, 290, 270, 370), (270, 370, 180, 370),
+    (180, 370, 0  , 370), (270, 370, 270, 450), (270, 450, 270, 530),
+    (270, 530, 180, 530), (180, 530, 40 , 530), (40 , 530, 40 , 600),
+    (40 , 600, 90 , 600), (95 , 600, 95 , 680), (90 , 680, 180, 680),
+    (95 , 680, 40 , 680), (40 , 680, 40 , 760), (40 , 760, 350, 760),
+    (350, 760, 350, 680), (350, 680, 270, 680), (270, 680, 270, 600),
+    (270, 600, 180, 600), (270, 600, 350, 600), (350, 600, 350, 530),
+    (350, 530, 270, 530), (180, 40 , 180, 140), (180, 140, 180, 220),
+    (180, 220, 180, 370), (180, 370, 180, 530), (180, 530, 180, 600),
+    (180, 600, 180, 680),
+]
+
+caminos_centrales = [
+    (350, 140, 450, 140), (350, 290, 450, 290),
+    (350, 600, 450, 600), (350, 760, 450, 760),
+    (270, 450, 530, 450)
+]
+
+coordenadas_puntos_bonus = [
+    (40, 40), (760, 40), (40, 680), (760, 680)
+]
+
+coordenadas_puntos_comida = set()
+distancia_entre_puntos = 35
+
+for x1, y1, x2, y2 in caminos_laterales:
+    if y1 == y2:
+        for x in range(min(x1, x2), max(x1, x2), distancia_entre_puntos):
+            if x > 0: coordenadas_puntos_comida.add((x, y1))
+            if (ANCHO - x) < ANCHO: coordenadas_puntos_comida.add((ANCHO - x, y1))
+    elif x1 == x2:
+        for y in range(min(y1, y2), max(y1, y2), distancia_entre_puntos):
+            coordenadas_puntos_comida.add((x1, y))
+            coordenadas_puntos_comida.add((ANCHO - x1, y))
+
+for x1, y1, x2, y2 in caminos_centrales:
+    if y1 == y2:
+        for x in range(x1, x2, distancia_entre_puntos):
+            coordenadas_puntos_comida.add((x, y1))
+
 corriendo = True
 while corriendo:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             corriendo = False
 
-    #ventana.fill(NEGRO)
+
     ventana.blit(background_image, (0, 0))
 
-    #LINEAS CAMINO
-    puntos_camino = [
-        (40, 40, 180, 40), (180, 40, 350, 40), (40, 40, 40, 140),
-        (40, 140, 40, 220), (40, 220, 180, 220), (350, 40, 350, 140),
-        (40, 140, 180, 140), (180, 140, 270, 140), (270, 140, 350, 140),
-        (270, 140, 270, 220), (270, 220, 350, 220), (350, 220, 350, 295),
-        (350, 295, 270, 295), (270, 295, 270, 370), (270, 370, 180, 370),
-        (180, 370, 0, 370), (270, 370, 270, 450), (270, 450, 270, 530),
-        (270, 530, 180, 530), (180, 530, 40, 530), (40, 530, 40, 600),
-        (40, 600, 95, 600), (95, 600, 95, 680), (95, 680, 180, 680),
-        (95, 680, 40, 680), (40, 680, 40, 760), (40, 760, 350, 760),
-        (350, 760, 350, 680), (350, 680, 270, 680), (270, 680, 270, 600),
-        (270, 600, 180, 600), (270, 600, 350, 600), (350, 600, 350, 530),
-        (350, 530, 270, 530), (180, 40, 180, 140), (180, 140, 180, 220),
-        (180, 220, 180, 370), (180, 370, 180, 530), (180, 530, 180, 600),
-        (180, 600, 180, 680), (350, 140, 450, 140), (350, 295, 450, 295),
-        (350, 600, 450, 600), (350, 760, 450, 760), (270, 450, 530, 450)
-    ]
+    for x, y in coordenadas_puntos_comida:
+        dibujar_puntos_comida(x, y)
 
-    for x1, y1, x2, y2 in puntos_camino:
-        dibujador.dibujar_linea_dda(x1, y1, x2, y2, ROJO)
+    for x, y in coordenadas_puntos_bonus:
+        dibujar_puntos_bonus(x, y)
 
-        mx1 = ANCHO - x1
-        mx2 = ANCHO - x2
-        dibujador.dibujar_linea_dda(mx1, y1, mx2, y2, ROJO)
-
-    #dibujar_pacman_abierto(100, 40, 0)
-    #dibujar_fantasma(100, 40, ROJO)
-    #dibujar_puntos_bonus(40, 40)
     pygame.display.update()
 
 pygame.quit()
