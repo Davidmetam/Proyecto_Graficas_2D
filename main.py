@@ -287,7 +287,7 @@ while corriendo:
     punto_comido = None
     for punto in coordenadas_puntos_comida:
         dist = math.sqrt((pacman.x - punto[0]) ** 2 + (pacman.y - punto[1]) ** 2)
-        if dist < pacman.radio / 2:
+        if dist < pacman.radio:
             punto_comido = punto
             break
     if punto_comido:
@@ -313,7 +313,7 @@ while corriendo:
 
     for fantasma in fantasmas:
         dist = math.sqrt((pacman.x - fantasma.x) ** 2 + (pacman.y - fantasma.y) ** 2)
-        if dist < (pacman.radio + fantasma.radio) / 2:
+        if dist < pacman.radio + fantasma.radio:
             if fantasma.estado == 'vulnerable':
                 fantasma.reiniciar()
             else:
