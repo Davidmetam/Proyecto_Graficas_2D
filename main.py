@@ -71,20 +71,29 @@ class Personaje:
 
 class Pacman(Personaje):
     def __init__(self, x, y):
-        super().__init__(x, y, velocidad=30)
+        super().__init__(x, y, velocidad=25)
         self.SELECTOR = 1
         self.angulo = 0
         self.nodo_anterior = None
 
     def actualizar(self, grafo):
         if self.nodo_actual == self.nodo_destino:
-            vecinos = grafo.get(self.nodo_actual, [])
-            opciones = [vecino for vecino in vecinos if vecino != self.nodo_anterior]
-            if not opciones:
-                opciones = vecinos
+            if self.nodo_actual == (40, 370):
+                self.x, self.y = 760, 370
+                self.nodo_actual = (self.x, self.y)
+                self.nodo_destino = (620, 370)
+            elif self.nodo_actual == (760, 370):
+                self.x, self.y = 40, 370
+                self.nodo_actual = (self.x, self.y)
+                self.nodo_destino = (180, 370)
+            else:
+                vecinos = grafo.get(self.nodo_actual, [])
+                opciones = [vecino for vecino in vecinos if vecino != self.nodo_anterior]
+                if not opciones:
+                    opciones = vecinos
 
-            self.nodo_anterior = self.nodo_actual
-            self.nodo_destino = random.choice(opciones)
+                self.nodo_anterior = self.nodo_actual
+                self.nodo_destino = random.choice(opciones)
 
             dist_x = self.nodo_destino[0] - self.nodo_actual[0]
             dist_y = self.nodo_destino[1] - self.nodo_actual[1]
@@ -117,7 +126,7 @@ class Pacman(Personaje):
 
 class Fantasma(Personaje):
     def __init__(self, x, y, color):
-        super().__init__(x, y, velocidad=30)
+        super().__init__(x, y, velocidad=24)
         self.color_original = color
         self.color = color
         self.nodo_anterior = None
@@ -125,13 +134,22 @@ class Fantasma(Personaje):
 
     def actualizar(self, grafo):
         if self.nodo_actual == self.nodo_destino:
-            vecinos = grafo.get(self.nodo_actual, [])
-            opciones = [vecino for vecino in vecinos if vecino != self.nodo_anterior]
-            if not opciones:
-                opciones = vecinos
+            if self.nodo_actual == (40, 370):
+                self.x, self.y = 760, 370
+                self.nodo_actual = (self.x, self.y)
+                self.nodo_destino = (620, 370)
+            elif self.nodo_actual == (760, 370):
+                self.x, self.y = 40, 370
+                self.nodo_actual = (self.x, self.y)
+                self.nodo_destino = (180, 370)
+            else:
+                vecinos = grafo.get(self.nodo_actual, [])
+                opciones = [vecino for vecino in vecinos if vecino != self.nodo_anterior]
+                if not opciones:
+                    opciones = vecinos
 
-            self.nodo_anterior = self.nodo_actual
-            self.nodo_destino = random.choice(opciones)
+                self.nodo_anterior = self.nodo_actual
+                self.nodo_destino = random.choice(opciones)
 
             dist_x = self.nodo_destino[0] - self.nodo_actual[0]
             dist_y = self.nodo_destino[1] - self.nodo_actual[1]
@@ -187,7 +205,7 @@ def dibujar_fantasma(x, y, color, dibujador):
     dibujador.dibujar_circulo_coordenadas_polares(x, y, radio, color)
     dibujador.desactivar_relleno()
 
-    eye_radius, pupil_radius, eye_offset_x = radio / 2.5, radio / 5, radio / 2
+    eye_radius, pupil_radius, eye_offset_x = radio / 3, radio / 6, radio / 2
     for sign in [-1, 1]:
         eye_x = x + eye_offset_x * sign
         dibujador.activar_relleno(BLANCO)
@@ -264,8 +282,10 @@ for p1, p2 in segmentos_del_mapa:
 pacman_start_pos = (180, 40)
 pacman = Pacman(pacman_start_pos[0], pacman_start_pos[1])
 fantasmas = [
-    Fantasma(270, 370, ROJO), Fantasma(350, 290, CIAN),
-    Fantasma(270, 450, ROSA), Fantasma(350, 600, NARANJA)
+    Fantasma(760, 40, ROJO),
+    Fantasma(760, 680, CIAN),
+    Fantasma(270, 450, ROSA),
+    Fantasma(40, 680, NARANJA)
 ]
 
 bonus_activo = False
@@ -331,7 +351,7 @@ while corriendo:
         fantasma.dibujar(dibujador)
 
     pygame.display.update()
-    reloj.tick(60)
+    reloj.tick(300)
 
 pygame.quit()
 sys.exit()
