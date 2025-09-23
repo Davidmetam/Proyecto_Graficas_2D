@@ -117,48 +117,30 @@ while corriendo:
     ventana.blit(background_image, (0, 0))
 
     #LINEAS CAMINO
-    dibujador.dibujar_linea_dda(40,40, 180, 40, ROJO)
-    dibujador.dibujar_linea_dda(180, 40, 350, 40, ROJO)
-    dibujador.dibujar_linea_dda(40, 40, 40, 140, ROJO)
-    dibujador.dibujar_linea_dda(40, 140, 40, 220, ROJO)
-    dibujador.dibujar_linea_dda(40, 220, 180, 220, ROJO)
-    dibujador.dibujar_linea_dda(350, 40, 350, 140, ROJO)
-    dibujador.dibujar_linea_dda(40 , 140, 180, 140, ROJO)
-    dibujador.dibujar_linea_dda(180, 140, 270, 140, ROJO)
-    dibujador.dibujar_linea_dda(270, 140, 350, 140, ROJO)
-    dibujador.dibujar_linea_dda(270, 140, 270, 220, ROJO)
-    dibujador.dibujar_linea_dda(270, 220, 350, 220, ROJO)
-    dibujador.dibujar_linea_dda(350, 220, 350, 295, ROJO)
-    dibujador.dibujar_linea_dda(350, 295, 270, 295, ROJO)
-    dibujador.dibujar_linea_dda(270, 295, 270, 370, ROJO)
-    dibujador.dibujar_linea_dda(270, 370, 180, 370, ROJO)
-    dibujador.dibujar_linea_dda(180, 370, 0  , 370, ROJO)
-    dibujador.dibujar_linea_dda(270, 370, 270, 450, ROJO)
-    dibujador.dibujar_linea_dda(270, 450, 270, 530, ROJO)
-    dibujador.dibujar_linea_dda(270, 530, 180, 530, ROJO)
-    dibujador.dibujar_linea_dda(180, 530, 40 , 530, ROJO)
-    dibujador.dibujar_linea_dda(40 , 530, 40 , 600, ROJO)
-    dibujador.dibujar_linea_dda(40 , 600, 95 , 600, ROJO)
-    dibujador.dibujar_linea_dda(95 , 600, 95 , 680, ROJO)
-    dibujador.dibujar_linea_dda(95 , 680, 180, 680, ROJO)
-    dibujador.dibujar_linea_dda(95 , 680, 40 , 680, ROJO)
-    dibujador.dibujar_linea_dda(40 , 680, 40 , 760, ROJO)
-    dibujador.dibujar_linea_dda(40 , 760, 350, 760, ROJO)
-    dibujador.dibujar_linea_dda(350, 760, 350, 680, ROJO)
-    dibujador.dibujar_linea_dda(350, 760, 350, 680, ROJO)
-    dibujador.dibujar_linea_dda(350, 680, 270, 680, ROJO)
-    dibujador.dibujar_linea_dda(270, 680, 270, 600, ROJO)
-    dibujador.dibujar_linea_dda(270, 600, 180, 600, ROJO)
-    dibujador.dibujar_linea_dda(270, 600, 350, 600, ROJO)
-    dibujador.dibujar_linea_dda(350, 600, 350, 530, ROJO)
-    dibujador.dibujar_linea_dda(350, 530, 270, 530, ROJO)
-    dibujador.dibujar_linea_dda(180, 40 , 180, 140, ROJO)
-    dibujador.dibujar_linea_dda(180, 140, 180, 220, ROJO)
-    dibujador.dibujar_linea_dda(180, 220, 180, 370, ROJO)
-    dibujador.dibujar_linea_dda(180, 370, 180, 530, ROJO)
-    dibujador.dibujar_linea_dda(180, 530, 180, 600, ROJO)
-    dibujador.dibujar_linea_dda(180, 600, 180, 680, ROJO)
+    puntos_camino = [
+        (40, 40, 180, 40), (180, 40, 350, 40), (40, 40, 40, 140),
+        (40, 140, 40, 220), (40, 220, 180, 220), (350, 40, 350, 140),
+        (40, 140, 180, 140), (180, 140, 270, 140), (270, 140, 350, 140),
+        (270, 140, 270, 220), (270, 220, 350, 220), (350, 220, 350, 295),
+        (350, 295, 270, 295), (270, 295, 270, 370), (270, 370, 180, 370),
+        (180, 370, 0, 370), (270, 370, 270, 450), (270, 450, 270, 530),
+        (270, 530, 180, 530), (180, 530, 40, 530), (40, 530, 40, 600),
+        (40, 600, 95, 600), (95, 600, 95, 680), (95, 680, 180, 680),
+        (95, 680, 40, 680), (40, 680, 40, 760), (40, 760, 350, 760),
+        (350, 760, 350, 680), (350, 680, 270, 680), (270, 680, 270, 600),
+        (270, 600, 180, 600), (270, 600, 350, 600), (350, 600, 350, 530),
+        (350, 530, 270, 530), (180, 40, 180, 140), (180, 140, 180, 220),
+        (180, 220, 180, 370), (180, 370, 180, 530), (180, 530, 180, 600),
+        (180, 600, 180, 680), (350, 140, 450, 140), (350, 295, 450, 295),
+        (350, 600, 450, 600), (350, 760, 450, 760), (270, 450, 530, 450)
+    ]
 
+    for x1, y1, x2, y2 in puntos_camino:
+        dibujador.dibujar_linea_dda(x1, y1, x2, y2, ROJO)
+
+        mx1 = ANCHO - x1
+        mx2 = ANCHO - x2
+        dibujador.dibujar_linea_dda(mx1, y1, mx2, y2, ROJO)
 
     #dibujar_pacman_abierto(100, 40, 0)
     #dibujar_fantasma(100, 40, ROJO)
