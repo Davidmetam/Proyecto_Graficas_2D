@@ -116,7 +116,7 @@ while corriendo:
     #ventana.fill(NEGRO)
     ventana.blit(background_image, (0, 0))
 
-    #ancho de paredes = 40
+    #LINEAS CAMINO
     dibujador.dibujar_linea_dda(40,40, 180, 40, ROJO)
     dibujador.dibujar_linea_dda(180, 40, 350, 40, ROJO)
     dibujador.dibujar_linea_dda(40, 40, 40, 140, ROJO)
