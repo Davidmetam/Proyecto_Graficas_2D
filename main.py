@@ -4,7 +4,6 @@ import math
 import random
 from figuras import Figuras
 from animacion import Animacion
-from hilos import Hilos
 
 pygame.init()
 
@@ -20,19 +19,18 @@ except pygame.error:
 
 NEGRO = (0, 0, 0)
 BLANCO = (255, 255, 255)
-AZUL = (0, 0, 255)
+AZUL = (50, 50, 255)
 ROJO = (255, 0, 0)
 AMARILLO = (255, 255, 26)
 COLOR_BOLITAS_PACMAN = (255, 195, 99)
 CIAN = (0, 255, 255)
 ROSA = (255, 184, 222)
 NARANJA = (255, 184, 82)
-
-
-# --- Clases de Personajes ---
+SELECTOR = 1
 
 class Personaje:
     def __init__(self, x, y, velocidad=2):
+        self.start_x, self.start_y = x, y
         self.x, self.y = x, y
         self.velocidad = velocidad
         self.nodo_actual = (x, y)
@@ -65,42 +63,39 @@ class Personaje:
                 self.x, self.y = self.nodo_destino
                 self.nodo_actual = self.nodo_destino
 
+    def reiniciar(self):
+        self.x, self.y = self.start_x, self.start_y
+        self.nodo_actual = (self.start_x, self.start_y)
+        self.nodo_destino = (self.start_x, self.start_y)
+        self.direccion = (0, 0)
 
 class Pacman(Personaje):
     def __init__(self, x, y):
-        super().__init__(x, y, velocidad=3)
+        super().__init__(x, y, velocidad=5)
+        self.SELECTOR = 1
         self.angulo = 0
-        self.direccion_deseada = (0, 0)
+        self.nodo_anterior = None
 
-    def actualizar(self, eventos, grafo):
-        for evento in eventos:
-            if evento.type == pygame.KEYDOWN:
-                if evento.key == pygame.K_UP:
-                    self.direccion_deseada = (0, -1)
-                elif evento.key == pygame.K_DOWN:
-                    self.direccion_deseada = (0, 1)
-                elif evento.key == pygame.K_LEFT:
-                    self.direccion_deseada = (-1, 0)
-                elif evento.key == pygame.K_RIGHT:
-                    self.direccion_deseada = (1, 0)
-
+    def actualizar(self, grafo):
         if self.nodo_actual == self.nodo_destino:
             vecinos = grafo.get(self.nodo_actual, [])
-            for vecino in vecinos:
-                if self.es_camino_valido(self.nodo_actual, vecino, self.direccion_deseada):
-                    self.nodo_destino = vecino
-                    self.direccion = self.direccion_deseada
-                    break
+            opciones = [vecino for vecino in vecinos if vecino != self.nodo_anterior]
+            if not opciones:
+                opciones = vecinos
+
+            self.nodo_anterior = self.nodo_actual
+            self.nodo_destino = random.choice(opciones)
+
+            dist_x = self.nodo_destino[0] - self.nodo_actual[0]
+            dist_y = self.nodo_destino[1] - self.nodo_actual[1]
+
+            if dist_x != 0:
+                self.direccion = (1 if dist_x > 0 else -1, 0)
+            elif dist_y != 0:
+                self.direccion = (0, 1 if dist_y > 0 else -1)
 
         self.actualizar_angulo()
         self.mover()
-
-    def es_camino_valido(self, nodo_inicio, nodo_fin, direccion):
-        if direccion == (1, 0) and nodo_fin[0] > nodo_inicio[0]: return True
-        if direccion == (-1, 0) and nodo_fin[0] < nodo_inicio[0]: return True
-        if direccion == (0, 1) and nodo_fin[1] > nodo_inicio[1]: return True
-        if direccion == (0, -1) and nodo_fin[1] < nodo_inicio[1]: return True
-        return False
 
     def actualizar_angulo(self):
         if self.direccion == (1, 0):
@@ -113,27 +108,25 @@ class Pacman(Personaje):
             self.angulo = 270
 
     def dibujar(self, dibujador, animacion):
-        dibujar_pacman_abierto(self.x, self.y, self.angulo, dibujador, animacion)
-
-    def reiniciar(self, x, y):
-        self.x, self.y = x, y
-        self.nodo_actual = (x, y)
-        self.nodo_destino = (x, y)
-        self.direccion = (0, 0)
-        self.direccion_deseada = (0, 0)
-
+        if self.SELECTOR > 0:
+            dibujar_pacman_abierto(self.x, self.y, self.angulo, dibujador, animacion)
+            self.SELECTOR *= -1
+        else:
+            dibujar_pacman(self.x, self.y)
+            self.SELECTOR *= -1
 
 class Fantasma(Personaje):
     def __init__(self, x, y, color):
-        super().__init__(x, y, velocidad=10)
+        super().__init__(x, y, velocidad=4)
+        self.color_original = color
         self.color = color
         self.nodo_anterior = None
+        self.estado = 'normal'  # 'normal' o 'vulnerable'
 
     def actualizar(self, grafo):
         if self.nodo_actual == self.nodo_destino:
             vecinos = grafo.get(self.nodo_actual, [])
             opciones = [vecino for vecino in vecinos if vecino != self.nodo_anterior]
-
             if not opciones:
                 opciones = vecinos
 
@@ -150,11 +143,16 @@ class Fantasma(Personaje):
 
         self.mover()
 
+    def set_vulnerable(self, es_vulnerable):
+        if es_vulnerable:
+            self.estado = 'vulnerable'
+            self.color = AZUL
+        else:
+            self.estado = 'normal'
+            self.color = self.color_original
+
     def dibujar(self, dibujador):
         dibujar_fantasma(self.x, self.y, self.color, dibujador)
-
-
-# --- Funciones de Dibujo ---
 
 def dibujar_pacman_abierto(x, y, angulo_rotacion, dibujador, animacion):
     vertices = []
@@ -170,6 +168,10 @@ def dibujar_pacman_abierto(x, y, angulo_rotacion, dibujador, animacion):
     dibujador.dibujar_poligono(pacman_rotado, AMARILLO)
     dibujador.desactivar_relleno()
 
+def dibujar_pacman(x, y):
+    dibujador.activar_relleno(AMARILLO)
+    dibujador.dibujar_circulo_coordenadas_polares(x, y, 20, AMARILLO)
+    dibujador.desactivar_relleno()
 
 def dibujar_fantasma(x, y, color, dibujador):
     radio = 18
@@ -195,20 +197,15 @@ def dibujar_fantasma(x, y, color, dibujador):
         dibujador.dibujar_circulo_coordenadas_polares(eye_x, y, pupil_radius, NEGRO)
         dibujador.desactivar_relleno()
 
-
 def dibujar_puntos_comida(x, y, dibujador):
     dibujador.activar_relleno(BLANCO)
     dibujador.dibujar_circulo_coordenadas_polares(x, y, 3, BLANCO)
     dibujador.desactivar_relleno()
 
-
 def dibujar_puntos_bonus(x, y, dibujador):
     dibujador.activar_relleno(AMARILLO)
     dibujador.dibujar_circulo_coordenadas_polares(x, y, 10, AMARILLO)
     dibujador.desactivar_relleno()
-
-
-# --- Lógica del Grafo y Colisiones ---
 
 def construir_grafo(segmentos):
     grafo = {}
@@ -223,16 +220,11 @@ def construir_grafo(segmentos):
         agregar_conexion(p1, p2)
     return grafo
 
-
-def verificar_colision(pacman, fantasmas):
+def reiniciar_juego():
+    pacman.reiniciar()
     for fantasma in fantasmas:
-        dist = math.sqrt((pacman.x - fantasma.x) ** 2 + (pacman.y - fantasma.y) ** 2)
-        if dist < (pacman.radio + fantasma.radio) / 2:
-            return True
-    return False
-
-
-# --- Inicialización del Juego ---
+        fantasma.reiniciar()
+        fantasma.set_vulnerable(False)
 
 dibujador = Figuras(ventana)
 animacion = Animacion(ventana)
@@ -269,18 +261,17 @@ for p1, p2 in segmentos_del_mapa:
     elif x1 == x2:
         for y in range(min(y1, y2), max(y1, y2), 30): coordenadas_puntos_comida.add((x1, y))
 
-pacman_start_pos = (40, 40)
+pacman_start_pos = (180, 40)
 pacman = Pacman(pacman_start_pos[0], pacman_start_pos[1])
-
 fantasmas = [
-    Fantasma(270, 370, ROJO),
-    Fantasma(350, 290, CIAN),
-    Fantasma(270, 450, ROSA),
-    Fantasma(350, 600, NARANJA)
+    Fantasma(270, 370, ROJO), Fantasma(350, 290, CIAN),
+    Fantasma(270, 450, ROSA), Fantasma(350, 600, NARANJA)
 ]
 
+bonus_activo = False
+bonus_timer = 0
+DURACION_BONUS = 30000
 
-# --- Bucle Principal del Juego ---
 corriendo = True
 reloj = pygame.time.Clock()
 while corriendo:
@@ -289,12 +280,45 @@ while corriendo:
         if evento.type == pygame.QUIT:
             corriendo = False
 
-    pacman.actualizar(eventos, grafo_caminos)
+    pacman.actualizar(grafo_caminos)
     for fantasma in fantasmas:
         fantasma.actualizar(grafo_caminos)
 
-    if verificar_colision(pacman, fantasmas):
-        pacman.reiniciar(pacman_start_pos[0], pacman_start_pos[1])
+    punto_comido = None
+    for punto in coordenadas_puntos_comida:
+        dist = math.sqrt((pacman.x - punto[0]) ** 2 + (pacman.y - punto[1]) ** 2)
+        if dist < pacman.radio / 2:
+            punto_comido = punto
+            break
+    if punto_comido:
+        coordenadas_puntos_comida.remove(punto_comido)
+
+    bonus_comido = None
+    for punto in coordenadas_puntos_bonus:
+        dist = math.sqrt((pacman.x - punto[0]) ** 2 + (pacman.y - punto[1]) ** 2)
+        if dist < pacman.radio:
+            bonus_comido = punto
+            break
+    if bonus_comido:
+        coordenadas_puntos_bonus.remove(bonus_comido)
+        bonus_activo = True
+        bonus_timer = pygame.time.get_ticks()
+        for fantasma in fantasmas:
+            fantasma.set_vulnerable(True)
+
+    if bonus_activo and pygame.time.get_ticks() - bonus_timer > DURACION_BONUS:
+        bonus_activo = False
+        for fantasma in fantasmas:
+            fantasma.set_vulnerable(False)
+
+    for fantasma in fantasmas:
+        dist = math.sqrt((pacman.x - fantasma.x) ** 2 + (pacman.y - fantasma.y) ** 2)
+        if dist < (pacman.radio + fantasma.radio) / 2:
+            if fantasma.estado == 'vulnerable':
+                fantasma.reiniciar()
+            else:
+                reiniciar_juego()
+            break
 
     ventana.blit(background_image, (0, 0))
     for x, y in coordenadas_puntos_comida:
@@ -307,7 +331,7 @@ while corriendo:
         fantasma.dibujar(dibujador)
 
     pygame.display.update()
-    reloj.tick(30)
+    reloj.tick(60)
 
 pygame.quit()
 sys.exit()
