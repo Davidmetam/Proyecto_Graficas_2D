@@ -71,7 +71,7 @@ class Personaje:
 
 class Pacman(Personaje):
     def __init__(self, x, y):
-        super().__init__(x, y, velocidad=5)
+        super().__init__(x, y, velocidad=30)
         self.SELECTOR = 1
         self.angulo = 0
         self.nodo_anterior = None
@@ -103,9 +103,9 @@ class Pacman(Personaje):
         elif self.direccion == (-1, 0):
             self.angulo = 180
         elif self.direccion == (0, -1):
-            self.angulo = 90
-        elif self.direccion == (0, 1):
             self.angulo = 270
+        elif self.direccion == (0, 1):
+            self.angulo = 90
 
     def dibujar(self, dibujador, animacion):
         if self.SELECTOR > 0:
@@ -117,11 +117,11 @@ class Pacman(Personaje):
 
 class Fantasma(Personaje):
     def __init__(self, x, y, color):
-        super().__init__(x, y, velocidad=4)
+        super().__init__(x, y, velocidad=30)
         self.color_original = color
         self.color = color
         self.nodo_anterior = None
-        self.estado = 'normal'  # 'normal' o 'vulnerable'
+        self.estado = 'normal'
 
     def actualizar(self, grafo):
         if self.nodo_actual == self.nodo_destino:
