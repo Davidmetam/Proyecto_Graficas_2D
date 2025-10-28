@@ -41,14 +41,18 @@ while Corriendo:
         # punto_proyeccion = [400, 300, 300]
         # dibujador.dibujar_cubo_proyectado(punto_inicial_cubo, longitud_arista, punto_proyeccion, ROJO)
 
-        centro_x = 400
-        centro_y = 300
-        longitud_arista = 90
-        mitad_arista = longitud_arista // 2
-        punto_inicial_cubo = [centro_x - mitad_arista, centro_y - mitad_arista, 50]
-        punto_de_fuga = [500, 400, 300]
-        dibujador.dibujar_pixel(punto_de_fuga[0], punto_de_fuga[1], AZUL)
-        dibujador.dibujar_cubo_fugado(punto_inicial_cubo, longitud_arista, punto_de_fuga, ROJO)
+        # punto_inicial_cubo = [355, 255, 50]
+        # longitud_arista = 90
+        # punto_de_fuga_cubo = [500, 400, 300]
+        # dibujador.dibujar_pixel(punto_de_fuga_cubo[0], punto_de_fuga_cubo[1], AZUL)
+        # dibujador.dibujar_cubo_fugado(punto_inicial_cubo, longitud_arista, punto_de_fuga_cubo, ROJO)
+
+        # punto_inicial_piramide = [340, 380, 50]
+        # longitud_base = 120
+        # altura_piramide = 150
+        # punto_de_fuga_piramide = [500, 300, 300]
+        # dibujador.dibujar_pixel(punto_de_fuga_piramide[0], punto_de_fuga_piramide[1], AZUL)
+        # dibujador.dibujar_piramide_fugada(punto_inicial_piramide, longitud_base, altura_piramide, punto_de_fuga_piramide, ROJO)
 
         pygame.display.update()
 
