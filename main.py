@@ -36,11 +36,16 @@ while Corriendo:
         #puntosY = [110, 120, 130, 140, 150, 160]
         #dibujador.mallado(puntosX, puntosY, ROJO)
 
-        punto_inicial_cubo = [392, 275, 50]
-        longitud_arista = 150
-        punto_proyeccion = [400, 300, 300]
+        # punto_inicial_cubo = [392, 275, 50]
+        # longitud_arista = 150
+        # punto_proyeccion = [400, 300, 300]
+        # dibujador.dibujar_cubo_proyectado(punto_inicial_cubo, longitud_arista, punto_proyeccion, ROJO)
 
-        dibujador.dibujarCuboProyectado(punto_inicial_cubo, longitud_arista, punto_proyeccion, ROJO)
+        punto_inicial_cubo = [392, 275, 50]
+        longitud_arista = 90
+        punto_proyeccion = [140, 30, 30]
+        dibujador.dibujar_pixel(140, 30, AZUL)
+        dibujador.dibujar_cubo_proyectado(punto_inicial_cubo, longitud_arista, punto_proyeccion, ROJO)
 
         pygame.display.update()
 
