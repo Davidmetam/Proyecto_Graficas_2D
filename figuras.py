@@ -249,3 +249,114 @@ class Figuras:
             p1 = vertices[i]
             p2 = vertices[(i + 1) % len(vertices)]
             self.dibujar_linea_dda(p1[0], p1[1], p2[0], p2[1], color)
+
+    def curva(self, puntos, x, y, esc_x, esc_y, color):
+        punt = []
+        for i in range(puntos):
+            X = (math.pi / (puntos - 1)) * i
+            Y = math.sin(X)
+            x_coor = x + X * esc_x
+            y_coor = y - Y * esc_y
+            punt.append((x_coor, y_coor))
+
+        for j in range(len(punt) - 1):
+            punto_actual = punt[j]
+            punto_sig = punt[j + 1]
+            self.dibujar_linea_dda(punto_actual[0], punto_actual[1], punto_sig[0], punto_sig[1], color)
+
+    def humito(self, puntos, x, y, esc_x, esc_y, color):
+        lista_puntos = []
+        rango_y = 2 * math.pi
+        for i in range(puntos):
+            Y = (rango_y / puntos) * i
+            X = Y * math.cos(4 * Y)
+            x_coor = x + X * esc_x
+            y_coor = y - Y * esc_y
+            lista_puntos.append((x_coor, y_coor))
+
+        for i in range(len(lista_puntos) - 1):
+            punto_actual = lista_puntos[i]
+            punto_siguiente = lista_puntos[i + 1]
+            self.dibujar_linea_dda(punto_actual[0], punto_actual[1], punto_siguiente[0], punto_siguiente[1], color)
+
+    def curva_parametricamente(self, puntos, x, y, esc, color):
+        lista_puntos = []
+        rango_t = 10.0
+        for i in range(puntos + 1):
+            t = (rango_t / puntos) * i
+            x_matematica = t - 3 * math.sin(t)
+            y_matematica = 4 - 3 * math.cos(t)
+
+            x_coor = x + x_matematica * esc
+            y_coor = y - y_matematica * esc
+
+            lista_puntos.append((x_coor, y_coor))
+
+        for i in range(len(lista_puntos) - 1):
+            punto_actual = lista_puntos[i]
+            punto_siguiente = lista_puntos[i + 1]
+            self.dibujar_linea_dda(punto_actual[0], punto_actual[1], punto_siguiente[0], punto_siguiente[1], color)
+
+    def infinito(self, puntos, x, y, radio, color):
+        lista_puntos = []
+        rango_t = 2 * math.pi
+        for i in range(puntos + 1):
+            t = (rango_t / puntos) * i
+            denominador = 1 + (math.cos(t) ** 2)
+            X = radio * math.sin(t) / denominador
+            Y = radio * math.sin(t) * math.cos(t) / denominador
+            x_coor = x + X
+            y_coor = y - Y
+            lista_puntos.append((x_coor, y_coor))
+        for i in range(len(lista_puntos) - 1):
+            punto_actual = lista_puntos[i]
+            punto_siguiente = lista_puntos[i + 1]
+
+            self.dibujar_linea_dda(punto_actual[0], punto_actual[1], punto_siguiente[0], punto_siguiente[1], color)
+
+    def mandala1(self, puntos, x, y, escala, color):
+        lista_puntos = []
+        rango_t = 2 * math.pi
+        for i in range(puntos + 1):
+            t = (rango_t / puntos) * i
+            X = math.cos(t) + (1 / 2) * math.cos(7 * t) + (1 / 3) * math.sin(17 * t)
+            Y = math.sin(t) + (1 / 2) * math.sin(7 * t) + (1 / 3) * math.cos(17 * t)
+
+            x_coor = x + X * escala
+            y_coor = y - Y * escala
+            lista_puntos.append((x_coor, y_coor))
+
+        for i in range(len(lista_puntos) - 1):
+            punto_actual = lista_puntos[i]
+            punto_siguiente = lista_puntos[i + 1]
+            self.dibujar_linea_dda(punto_actual[0], punto_actual[1], punto_siguiente[0], punto_siguiente[1], color)
+
+    def mandala2(self, puntos, x, y, escala, color):
+        lista_puntos = []
+        rango_t = 14 * math.pi
+        for i in range(puntos + 1):
+            t = (rango_t / puntos) * i
+            X = 17 * math.cos(t) + 7 * math.cos((17 / 7) * t)
+            Y = 17 * math.sin(t) - 7 * math.sin((17 / 7) * t)
+            x_coor = x + X * escala
+            y_coor = y - Y * escala
+            lista_puntos.append((x_coor, y_coor))
+
+        for i in range(len(lista_puntos) - 1):
+            punto_actual = lista_puntos[i]
+            punto_siguiente = lista_puntos[i + 1]
+            self.dibujar_linea_dda(punto_actual[0], punto_actual[1], punto_siguiente[0], punto_siguiente[1], color)
+
+    def mallado(self, puntosX, puntosY, color):
+        for y in puntosY:
+            for i in range(len(puntosX) - 1):
+                x1 = puntosX[i]
+                x2 = puntosX[i + 1]
+                self.dibujar_linea_dda(x1, y, x2, y, color)
+        for x in puntosX:
+            for j in range(len(puntosY) - 1):
+                y1 = puntosY[j]
+                y2 = puntosY[j + 1]
+                self.dibujar_linea_dda(x, y1, x, y2, color)
+
+
