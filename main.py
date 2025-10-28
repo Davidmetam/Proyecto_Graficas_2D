@@ -32,9 +32,16 @@ while Corriendo:
         #dibujador.mandala1(300,300,300,100,ROJO)
         #dibujador.mandala2(300,300,300,10,ROJO)
 
-        puntosX = [110, 120, 130, 140, 150, 160]
-        puntosY = [110, 120, 130, 140, 150, 160]
-        dibujador.mallado(puntosX, puntosY, ROJO)
+        #puntosX = [110, 120, 130, 140, 150, 160]
+        #puntosY = [110, 120, 130, 140, 150, 160]
+        #dibujador.mallado(puntosX, puntosY, ROJO)
+
+        punto_inicial_cubo = [392, 275, 50]
+        longitud_arista = 150
+        punto_proyeccion = [400, 300, 300]
+
+        dibujador.dibujarCuboProyectado(punto_inicial_cubo, longitud_arista, punto_proyeccion, ROJO)
+
         pygame.display.update()
 
 pygame.quit()

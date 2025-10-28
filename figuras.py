@@ -359,4 +359,51 @@ class Figuras:
                 y2 = puntosY[j + 1]
                 self.dibujar_linea_dda(x, y1, x, y2, color)
 
+    def crearCubo(self, puntoInicial, arista):
+        x, y, z = puntoInicial[0], puntoInicial[1], puntoInicial[2]
 
+        v1 = (x, y, z)
+        v2 = (x + arista, y, z)
+        v3 = (x + arista, y + arista, z)
+        v4 = (x, y + arista, z)
+
+        v5 = (x, y, z + arista)
+        v6 = (x + arista, y, z + arista)
+        v7 = (x + arista, y + arista, z + arista)
+        v8 = (x, y + arista, z + arista)
+
+        return [v1, v2, v3, v4, v5, v6, v7, v8]
+
+    def dibujarCuboProyectado(self, puntoInicial, arista, puntoDeProyeccion, color):
+        vertices_3d = self.crearCubo(puntoInicial, arista)
+
+        Xp, Yp, Zp = puntoDeProyeccion[0], puntoDeProyeccion[1], puntoDeProyeccion[2]
+
+        if Zp == 0:
+            return
+
+        vertices_proyectados = []
+        for v in vertices_3d:
+            X1, Y1, Z1 = v[0], v[1], v[2]
+
+            U = -Z1 / Zp
+
+            X_proy = X1 + Xp * U
+            Y_proy = Y1 + Yp * U
+
+            vertices_proyectados.append((X_proy, Y_proy))
+
+        aristas = [
+            (0, 1), (1, 2), (2, 3), (3, 0),
+            (4, 5), (5, 6), (6, 7), (7, 4),
+            (0, 4), (1, 5), (2, 6), (3, 7)
+        ]
+
+        for arista_indices in aristas:
+            p1_idx = arista_indices[0]
+            p2_idx = arista_indices[1]
+
+            v_inicio = vertices_proyectados[p1_idx]
+            v_fin = vertices_proyectados[p2_idx]
+
+            self.dibujar_linea_dda(v_inicio[0], v_inicio[1], v_fin[0], v_fin[1], color)
