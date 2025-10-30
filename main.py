@@ -1,5 +1,7 @@
 import pygame
 from figuras import Figuras
+from figuras_3d import Figuras3D
+
 pygame.init()
 ancho, alto = 800, 600
 ventana = pygame.display.set_mode((ancho, alto))
@@ -14,6 +16,7 @@ MORADO   = (128, 0, 128)
 AZUL = (0, 0, 255)
 
 dibujador = Figuras(ventana)
+dibujador3D = Figuras3D(ventana)
 
 
 Corriendo =True
@@ -39,20 +42,20 @@ while Corriendo:
         # punto_inicial_cubo = [392, 275, 50]
         # longitud_arista = 150
         # punto_proyeccion = [400, 300, 300]
-        # dibujador.dibujar_cubo_proyectado(punto_inicial_cubo, longitud_arista, punto_proyeccion, ROJO)
+        # dibujador3D.dibujar_cubo_proyectado(punto_inicial_cubo, longitud_arista, punto_proyeccion, ROJO)
 
         punto_inicial_cubo = [355, 255, 50]
         longitud_arista = 90
         punto_de_fuga_cubo = [500, 400, 300]
         dibujador.dibujar_pixel(punto_de_fuga_cubo[0], punto_de_fuga_cubo[1], AZUL)
-        dibujador.dibujar_cubo_fugado(punto_inicial_cubo, longitud_arista, punto_de_fuga_cubo, ROJO)
+        dibujador3D.dibujar_cubo_fugado(punto_inicial_cubo, longitud_arista, punto_de_fuga_cubo, ROJO)
 
         # punto_inicial_piramide = [340, 380, 50]
         # longitud_base = 120
         # altura_piramide = 150
         # punto_de_fuga_piramide = [500, 300, 300]
         # dibujador.dibujar_pixel(punto_de_fuga_piramide[0], punto_de_fuga_piramide[1], AZUL)
-        # dibujador.dibujar_piramide_fugada(punto_inicial_piramide, longitud_base, altura_piramide, punto_de_fuga_piramide, ROJO)
+        # dibujador3D.dibujar_piramide_fugada(punto_inicial_piramide, longitud_base, altura_piramide, punto_de_fuga_piramide, ROJO)
 
         pygame.display.update()
 
