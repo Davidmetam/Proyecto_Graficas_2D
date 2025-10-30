@@ -41,11 +41,11 @@ while Corriendo:
         # punto_proyeccion = [400, 300, 300]
         # dibujador.dibujar_cubo_proyectado(punto_inicial_cubo, longitud_arista, punto_proyeccion, ROJO)
 
-        # punto_inicial_cubo = [355, 255, 50]
-        # longitud_arista = 90
-        # punto_de_fuga_cubo = [500, 400, 300]
-        # dibujador.dibujar_pixel(punto_de_fuga_cubo[0], punto_de_fuga_cubo[1], AZUL)
-        # dibujador.dibujar_cubo_fugado(punto_inicial_cubo, longitud_arista, punto_de_fuga_cubo, ROJO)
+        punto_inicial_cubo = [355, 255, 50]
+        longitud_arista = 90
+        punto_de_fuga_cubo = [500, 400, 300]
+        dibujador.dibujar_pixel(punto_de_fuga_cubo[0], punto_de_fuga_cubo[1], AZUL)
+        dibujador.dibujar_cubo_fugado(punto_inicial_cubo, longitud_arista, punto_de_fuga_cubo, ROJO)
 
         # punto_inicial_piramide = [340, 380, 50]
         # longitud_base = 120
