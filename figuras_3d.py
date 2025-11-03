@@ -1,3 +1,4 @@
+import math
 from figuras import Figuras
 
 
@@ -109,4 +110,44 @@ class Figuras3D(Figuras):
             (0, 1), (1, 2), (2, 3), (3, 0),
             (0, 4), (1, 4), (2, 4), (3, 4)
         ]
+        self._proyectar_y_dibujar_fugado(vertices_3d, aristas, punto_de_fuga, color)
+
+    def crear_reloj_arena(self, centro, escala, t_min, t_max, pasos_t, pasos_phi):
+        vertices_3d = []
+        aristas = []
+        cx, cy, cz = centro
+        t_rango = t_max - t_min
+
+        for i in range(pasos_t + 1):
+            t = t_min + (t_rango * i / pasos_t)
+
+            radio = (2 - math.cos(t))
+
+            vy = cy - (t * escala)
+            for j in range(pasos_phi):
+                phi = (2 * math.pi * j / pasos_phi)
+                vx = cx + (radio * math.cos(phi) * escala)
+                vz = cz + (radio * math.sin(phi) * escala)
+                vertices_3d.append((vx, vy, vz))
+
+        for i in range(pasos_t + 1):
+            for j in range(pasos_phi):
+                idx1 = i * pasos_phi + j
+                idx2 = i * pasos_phi + (j + 1) % pasos_phi
+                aristas.append((idx1, idx2))
+
+        for j in range(pasos_phi):
+            for i in range(pasos_t):
+                idx1 = i * pasos_phi + j
+                idx2 = (i + 1) * pasos_phi + j
+                aristas.append((idx1, idx2))
+
+        return vertices_3d, aristas
+
+    def dibujar_reloj_arena_proyectado(self, centro, escala, t_min, t_max, pasos_t, pasos_phi, punto_de_proyeccion, color):
+        vertices_3d, aristas = self.crear_reloj_arena(centro, escala, t_min, t_max, pasos_t, pasos_phi)
+        self._proyectar_y_dibujar_proyectado(vertices_3d, aristas, punto_de_proyeccion, color)
+
+    def dibujar_reloj_arena_fugado(self, centro, escala, t_min, t_max, pasos_t, pasos_phi, punto_de_fuga, color):
+        vertices_3d, aristas = self.crear_reloj_arena(centro, escala, t_min, t_max, pasos_t, pasos_phi)
         self._proyectar_y_dibujar_fugado(vertices_3d, aristas, punto_de_fuga, color)
