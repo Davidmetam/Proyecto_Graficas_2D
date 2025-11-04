@@ -172,9 +172,20 @@ class Figuras3D(Figuras):
         for i in range(pasos_t):
             t = t_min + (t_rango * i / pasos_t)
             t_norm = (t - t_min) / t_rango
-            r = int(255 * t_norm)
-            g = 0
-            b = int(255 * (1.0 - t_norm))
+
+            r, g, b = 0, 0, 0
+
+            if t_norm < 0.5:
+                fase_norm = t_norm * 2
+                r = int(255 * fase_norm)
+                g = int(255 * fase_norm)
+                b = int(255 * (1.0 - fase_norm))
+            else:
+                fase_norm = (t_norm - 0.5) * 2
+                r = 255
+                g = int(255 * (1.0 - fase_norm))
+                b = 0
+
             color = (r, g, b)
 
             for j in range(pasos_phi):
