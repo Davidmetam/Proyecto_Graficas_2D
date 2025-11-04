@@ -144,10 +144,84 @@ class Figuras3D(Figuras):
 
         return vertices_3d, aristas
 
-    def dibujar_reloj_arena_proyectado(self, centro, escala, t_min, t_max, pasos_t, pasos_phi, punto_de_proyeccion, color):
+    def dibujar_reloj_arena_proyectado(self, centro, escala, t_min, t_max, pasos_t, pasos_phi, punto_de_proyeccion,
+                                       color):
         vertices_3d, aristas = self.crear_reloj_arena(centro, escala, t_min, t_max, pasos_t, pasos_phi)
         self._proyectar_y_dibujar_proyectado(vertices_3d, aristas, punto_de_proyeccion, color)
 
-    def dibujar_reloj_arena_fugado(self, centro, escala, t_min, t_max, pasos_t, pasos_phi, punto_de_fuga, color):
+    def dibujar_reloj_arena_fugado(self, centro, escala, t_min, t_max, pasos_t, pasos_phi, punto_de_fuga, color=(0,0,0)):
         vertices_3d, aristas = self.crear_reloj_arena(centro, escala, t_min, t_max, pasos_t, pasos_phi)
         self._proyectar_y_dibujar_fugado(vertices_3d, aristas, punto_de_fuga, color)
+
+    def crear_reloj_arena_caras(self, centro, escala, t_min, t_max, pasos_t, pasos_phi):
+        vertices_3d = []
+        caras_con_datos = []
+        cx, cy, cz = centro
+        t_rango = t_max - t_min
+
+        for i in range(pasos_t + 1):
+            t = t_min + (t_rango * i / pasos_t)
+            radio = (2 - math.cos(t))
+            vy = cy - (t * escala)
+            for j in range(pasos_phi):
+                phi = (2 * math.pi * j / pasos_phi)
+                vx = cx + (radio * math.cos(phi) * escala)
+                vz = cz + (radio * math.sin(phi) * escala)
+                vertices_3d.append((vx, vy, vz))
+
+        for i in range(pasos_t):
+            t = t_min + (t_rango * i / pasos_t)
+            t_norm = (t - t_min) / t_rango
+            r = int(255 * t_norm)
+            g = 0
+            b = int(255 * (1.0 - t_norm))
+            color = (r, g, b)
+
+            for j in range(pasos_phi):
+                idx1 = i * pasos_phi + j
+                idx2 = i * pasos_phi + (j + 1) % pasos_phi
+                idx3 = (i + 1) * pasos_phi + (j + 1) % pasos_phi
+                idx4 = (i + 1) * pasos_phi + j
+
+                vertices_cara = (idx1, idx2, idx3, idx4)
+
+                z_promedio = (vertices_3d[idx1][2] + vertices_3d[idx2][2] + vertices_3d[idx3][2] + vertices_3d[idx4][
+                    2]) / 4
+
+                caras_con_datos.append((z_promedio, vertices_cara, color))
+
+        return vertices_3d, caras_con_datos
+
+    def dibujar_reloj_arena_superficie_proyectado(self, centro, escala, t_min, t_max, pasos_t, pasos_phi,
+                                                  punto_de_proyeccion, borde_color=(0,0,0)):
+        vertices_3d, caras_con_datos = self.crear_reloj_arena_caras(centro, escala, t_min, t_max, pasos_t, pasos_phi)
+
+        Xp, Yp, Zp = punto_de_proyeccion[0], punto_de_proyeccion[1], punto_de_proyeccion[2]
+        if Zp == 0:
+            return
+
+        vertices_proyectados = []
+        for v in vertices_3d:
+            X1, Y1, Z1 = v[0], v[1], v[2]
+            U = -Z1 / Zp
+            X_proy = X1 + Xp * U
+            Y_proy = Y1 + Yp * U
+            vertices_proyectados.append((X_proy, Y_proy))
+
+        caras_con_datos.sort(key=lambda x: x[0], reverse=True)
+
+        for z, vertices_indices, color_relleno in caras_con_datos:
+            vertices_2d_cara = [
+                vertices_proyectados[vertices_indices[0]],
+                vertices_proyectados[vertices_indices[1]],
+                vertices_proyectados[vertices_indices[2]],
+                vertices_proyectados[vertices_indices[3]]
+            ]
+
+            self.relleno_scanline(vertices_2d_cara, color_relleno)
+
+            if borde_color:
+                for k in range(4):
+                    p_inicio = vertices_2d_cara[k]
+                    p_fin = vertices_2d_cara[(k + 1) % 4]
+                    self.dibujar_linea_dda(p_inicio[0], p_inicio[1], p_fin[0], p_fin[1], borde_color)
