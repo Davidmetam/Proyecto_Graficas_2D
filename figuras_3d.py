@@ -149,7 +149,8 @@ class Figuras3D(Figuras):
         vertices_3d, aristas = self.crear_reloj_arena(centro, escala, t_min, t_max, pasos_t, pasos_phi)
         self._proyectar_y_dibujar_proyectado(vertices_3d, aristas, punto_de_proyeccion, color)
 
-    def dibujar_reloj_arena_fugado(self, centro, escala, t_min, t_max, pasos_t, pasos_phi, punto_de_fuga, color=(0,0,0)):
+    def dibujar_reloj_arena_fugado(self, centro, escala, t_min, t_max, pasos_t, pasos_phi, punto_de_fuga,
+                                   color=(0, 0, 0)):
         vertices_3d, aristas = self.crear_reloj_arena(centro, escala, t_min, t_max, pasos_t, pasos_phi)
         self._proyectar_y_dibujar_fugado(vertices_3d, aristas, punto_de_fuga, color)
 
@@ -209,10 +210,7 @@ class Figuras3D(Figuras):
 
         return vertices_3d, caras_con_datos
 
-    def dibujar_reloj_arena_superficie_proyectado(self, centro, escala, t_min, t_max, pasos_t, pasos_phi,
-                                                  punto_de_proyeccion, borde_color=(0,0,0)):
-        vertices_3d, caras_con_datos = self.crear_reloj_arena_caras(centro, escala, t_min, t_max, pasos_t, pasos_phi)
-
+    def _proyectar_y_dibujar_superficie(self, vertices_3d, caras_con_datos, punto_de_proyeccion, borde_color):
         Xp, Yp, Zp = punto_de_proyeccion[0], punto_de_proyeccion[1], punto_de_proyeccion[2]
         if Zp == 0:
             return
@@ -225,9 +223,17 @@ class Figuras3D(Figuras):
             Y_proy = Y1 + Yp * U
             vertices_proyectados.append((X_proy, Y_proy))
 
-        caras_con_datos.sort(key=lambda x: x[0], reverse=True)
+        caras_actualizadas = []
+        for _, vertices_indices, color_relleno in caras_con_datos:
+            z_promedio_actualizado = (vertices_3d[vertices_indices[0]][2] +
+                                      vertices_3d[vertices_indices[1]][2] +
+                                      vertices_3d[vertices_indices[2]][2] +
+                                      vertices_3d[vertices_indices[3]][2]) / 4
+            caras_actualizadas.append((z_promedio_actualizado, vertices_indices, color_relleno))
 
-        for z, vertices_indices, color_relleno in caras_con_datos:
+        caras_actualizadas.sort(key=lambda x: x[0], reverse=True)
+
+        for z, vertices_indices, color_relleno in caras_actualizadas:
             vertices_2d_cara = [
                 vertices_proyectados[vertices_indices[0]],
                 vertices_proyectados[vertices_indices[1]],
@@ -242,3 +248,8 @@ class Figuras3D(Figuras):
                     p_inicio = vertices_2d_cara[k]
                     p_fin = vertices_2d_cara[(k + 1) % 4]
                     self.dibujar_linea_dda(p_inicio[0], p_inicio[1], p_fin[0], p_fin[1], borde_color)
+
+    def dibujar_reloj_arena_superficie_proyectado(self, centro, escala, t_min, t_max, pasos_t, pasos_phi,
+                                                  punto_de_proyeccion, borde_color=None):
+        vertices_3d, caras_con_datos = self.crear_reloj_arena_caras(centro, escala, t_min, t_max, pasos_t, pasos_phi)
+        self._proyectar_y_dibujar_superficie(vertices_3d, caras_con_datos, punto_de_proyeccion, borde_color)
