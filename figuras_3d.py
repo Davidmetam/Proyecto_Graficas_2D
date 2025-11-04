@@ -154,6 +154,8 @@ class Figuras3D(Figuras):
         self._proyectar_y_dibujar_fugado(vertices_3d, aristas, punto_de_fuga, color)
 
     def crear_reloj_arena_caras(self, centro, escala, t_min, t_max, pasos_t, pasos_phi):
+        import math
+
         vertices_3d = []
         caras_con_datos = []
         cx, cy, cz = centro
@@ -173,17 +175,21 @@ class Figuras3D(Figuras):
             t = t_min + (t_rango * i / pasos_t)
             t_norm = (t - t_min) / t_rango
 
-            r, g, b = 0, 0, 0
-
-            if t_norm < 0.5:
-                fase_norm = t_norm * 2
-                r = int(255 * fase_norm)
-                g = int(255 * fase_norm)
-                b = int(255 * (1.0 - fase_norm))
+            if t_norm < 0.25:
+                r = 0
+                g = int(4 * 255 * t_norm)
+                b = 255
+            elif t_norm < 0.5:
+                r = 0
+                g = 255
+                b = int(255 * (1 - 4 * (t_norm - 0.25)))
+            elif t_norm < 0.75:
+                r = int(255 * 4 * (t_norm - 0.5))
+                g = 255
+                b = 0
             else:
-                fase_norm = (t_norm - 0.5) * 2
                 r = 255
-                g = int(255 * (1.0 - fase_norm))
+                g = int(255 * (1 - 4 * (t_norm - 0.75)))
                 b = 0
 
             color = (r, g, b)
@@ -196,8 +202,8 @@ class Figuras3D(Figuras):
 
                 vertices_cara = (idx1, idx2, idx3, idx4)
 
-                z_promedio = (vertices_3d[idx1][2] + vertices_3d[idx2][2] + vertices_3d[idx3][2] + vertices_3d[idx4][
-                    2]) / 4
+                z_promedio = (vertices_3d[idx1][2] + vertices_3d[idx2][2] +
+                              vertices_3d[idx3][2] + vertices_3d[idx4][2]) / 4
 
                 caras_con_datos.append((z_promedio, vertices_cara, color))
 

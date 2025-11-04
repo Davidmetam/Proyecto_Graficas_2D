@@ -31,7 +31,7 @@ while Corriendo:
         if evento.type == pygame.QUIT:
             Corriendo = False
 
-    ventana.fill(Negro)
+    ventana.fill(BLANCO)
 
     dibujador3D.dibujar_reloj_arena_superficie_proyectado(
         centro_figura,
