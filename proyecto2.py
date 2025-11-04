@@ -15,7 +15,7 @@ BLANCO = (255, 255, 255)
 dibujador = Figuras(ventana)
 dibujador3D = Figuras3D(ventana)
 
-centro_figura = (ancho // 2, 300, 50)
+centro_figura = (400, 300, 50)
 escala_figura = 50
 t_min_figura = -math.pi
 t_max_figura = math.pi
