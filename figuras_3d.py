@@ -3,6 +3,8 @@ from figuras import Figuras
 
 
 class Figuras3D(Figuras):
+
+
     def __init__(self, ventana):
         super().__init__(ventana)
 
@@ -155,7 +157,6 @@ class Figuras3D(Figuras):
         self._proyectar_y_dibujar_fugado(vertices_3d, aristas, punto_de_fuga, color)
 
     def crear_reloj_arena_caras(self, centro, escala, t_min, t_max, pasos_t, pasos_phi):
-        import math
 
         vertices_3d = []
         caras_con_datos = []
@@ -247,9 +248,85 @@ class Figuras3D(Figuras):
                 for k in range(4):
                     p_inicio = vertices_2d_cara[k]
                     p_fin = vertices_2d_cara[(k + 1) % 4]
-                    self.dibujar_linea_dda(p_inicio[0], p_inicio[1], p_fin[0], p_fin[1], borde_color)
+                    self.dibujar_linea_dda(p_inicio[0], p_inicio[1], p_fin[0], p_fin[1], color_relleno)
 
     def dibujar_reloj_arena_superficie_proyectado(self, centro, escala, t_min, t_max, pasos_t, pasos_phi,
                                                   punto_de_proyeccion, borde_color=None):
         vertices_3d, caras_con_datos = self.crear_reloj_arena_caras(centro, escala, t_min, t_max, pasos_t, pasos_phi)
         self._proyectar_y_dibujar_superficie(vertices_3d, caras_con_datos, punto_de_proyeccion, borde_color)
+
+
+    def crear_esfera(self, centro, radio, pasos_theta, pasos_phi):
+        vertices_3d = []
+        aristas = []
+        a, b, c = centro
+
+        for i in range(pasos_theta + 1):
+            theta = 2 * math.pi * i / pasos_theta
+            for j in range(pasos_phi + 1):
+                phi = math.pi * j / pasos_phi
+                x = radio * math.cos(theta) * math.sin(phi) + a
+                y = radio * math.sin(theta) * math.sin(phi) + b
+                z = radio * math.cos(phi) + c
+                vertices_3d.append((x, y, z))
+
+        for i in range(pasos_theta + 1):
+            for j in range(pasos_phi):
+                idx1 = i * (pasos_phi + 1) + j
+                idx2 = i * (pasos_phi + 1) + (j + 1)
+                aristas.append((idx1, idx2))
+
+        for i in range(pasos_theta):
+            for j in range(pasos_phi + 1):
+                idx1 = i * (pasos_phi + 1) + j
+                idx2 = (i + 1) * (pasos_phi + 1) + j
+                aristas.append((idx1, idx2))
+
+        return vertices_3d, aristas
+
+    def crear_esfera_caras(self, centro, radio, pasos_theta, pasos_phi):
+        vertices_3d = []
+        caras_con_datos = []
+        a, b, c = centro
+
+
+        for i in range(pasos_theta + 1):
+            theta = 2 * math.pi * i / pasos_theta
+            for j in range(pasos_phi + 1):
+                phi = math.pi * j / pasos_phi
+                x = radio * math.cos(theta) * math.sin(phi) + a
+                y = radio * math.sin(theta) * math.sin(phi) + b
+                z = radio * math.cos(phi) + c
+                vertices_3d.append((x, y, z))
+
+        color = (61, 138, 6)
+        ROJO = (255, 0, 0)
+
+        for i in range(pasos_theta):
+            for j in range(pasos_phi):
+                idx1 = i * (pasos_phi + 1) + j
+                idx2 = idx1 + 1
+                idx3 = (i + 1) * (pasos_phi + 1) + j + 1
+                idx4 = (i + 1) * (pasos_phi + 1) + j
+
+                vertices_cara = (idx1, idx2, idx3, idx4)
+
+                z_promedio = (
+                                     vertices_3d[idx1][2] +
+                                     vertices_3d[idx2][2] +
+                                     vertices_3d[idx3][2] +
+                                     vertices_3d[idx4][2]
+                             ) / 4
+                if (j // 5) % 2 == 0:
+                    color_cara = ROJO
+                else:
+                    color_cara = color
+
+                caras_con_datos.append((z_promedio, vertices_cara, color_cara))
+
+        return vertices_3d, caras_con_datos
+
+    def dibujar_esfera_proyectada(self, centro, radio, pasos_theta, pasos_phi, punto_de_proyeccion,
+                                       color):
+        vertices_3d, aristas = self.crear_esfera(centro, radio, pasos_theta, pasos_phi)
+        self._proyectar_y_dibujar_proyectado(vertices_3d, aristas, punto_de_proyeccion, color)
