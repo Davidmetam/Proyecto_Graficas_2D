@@ -382,3 +382,64 @@ class Figuras3D(Figuras):
                                        color):
         vertices_3d, aristas = self.crear_esfera(centro, radio, pasos_theta, pasos_phi)
         self._proyectar_y_dibujar_proyectado(vertices_3d, aristas, punto_de_proyeccion, color)
+
+    def crear_estrella_3d(self, centro, escala):
+        cx, cy, cz = centro
+        R = escala
+        r = escala * 0.45
+
+        vertices2d = []
+
+        for i in range(5):
+            ang_p = math.radians(i * 72 - 90)
+            x = cx + R * math.cos(ang_p)
+            y = cy + R * math.sin(ang_p)
+            vertices2d.append((x, y, cz))
+
+            ang_i = math.radians(i * 72 - 90 + 36)
+            x = cx + r * math.cos(ang_i)
+            y = cy + r * math.sin(ang_i)
+            vertices2d.append((x, y, cz))
+
+        centro_frente = (cx, cy, cz - escala * 0.8)
+        centro_atras = (cx, cy, cz + escala * 0.8)
+
+        vertices = vertices2d + [centro_frente, centro_atras]
+
+        caras = []
+
+        for i in range(10):
+            i_next = (i + 1) % 10
+            caras.append((10, i, i_next))
+
+        for i in range(10):
+            i_next = (i + 1) % 10
+            caras.append((11, i_next, i))
+
+        return vertices, caras
+
+
+    def dibujar_estrella_3d_superficie(self, centro, escala, punto_de_proyeccion):
+        vertices, caras = self.crear_estrella_3d(centro, escala)
+        Xp, Yp, Zp = punto_de_proyeccion
+
+        v2d = []
+        for x, y, z in vertices:
+            U = -z / Zp
+            xp = x + Xp * U
+            yp = y + Yp * U
+            v2d.append((xp, yp))
+
+        orden = []
+        for a, b, c in caras:
+            zprom = (vertices[a][2] + vertices[b][2] + vertices[c][2]) / 3
+            orden.append((zprom, (a, b, c)))
+
+        orden.sort(reverse=True)
+
+        for _, (a, b, c) in orden:
+            pts = [v2d[a], v2d[b], v2d[c]]
+            self.relleno_scanline(pts, (255, 255, 0))
+            self.dibujar_linea_dda(pts[0][0], pts[0][1], pts[1][0], pts[1][1], (245, 187, 39))
+            self.dibujar_linea_dda(pts[1][0], pts[1][1], pts[2][0], pts[2][1], (245, 187, 39))
+            self.dibujar_linea_dda(pts[2][0], pts[2][1], pts[0][0], pts[0][1], (245, 187, 39))
