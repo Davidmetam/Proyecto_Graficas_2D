@@ -289,18 +289,20 @@ class Figuras3D(Figuras):
         caras_con_datos = []
         a, b, c = centro
 
+        color = (61, 138, 6)
+        ROJO = (255, 0, 0)
+        BLANCO = (255, 255, 255)
+        GRIS = (192, 192, 192)
 
         for i in range(pasos_theta + 1):
             theta = 2 * math.pi * i / pasos_theta
             for j in range(pasos_phi + 1):
                 phi = math.pi * j / pasos_phi
-                x = radio * math.cos(theta) * math.sin(phi) + a
-                y = radio * math.sin(theta) * math.sin(phi) + b
-                z = radio * math.cos(phi) + c
-                vertices_3d.append((x, y, z))
 
-        color = (61, 138, 6)
-        ROJO = (255, 0, 0)
+                z = radio * math.cos(theta) * math.sin(phi) + c
+                y = radio * math.sin(theta) * math.sin(phi) + b
+                x = radio * math.cos(phi) + a
+                vertices_3d.append((x, y, z))
 
         for i in range(pasos_theta):
             for j in range(pasos_phi):
@@ -317,12 +319,62 @@ class Figuras3D(Figuras):
                                      vertices_3d[idx3][2] +
                                      vertices_3d[idx4][2]
                              ) / 4
+
                 if (j // 5) % 2 == 0:
-                    color_cara = ROJO
+                    if i % 2 == 0:
+                        color_cara = BLANCO
+                    else:
+                        color_cara = ROJO
                 else:
                     color_cara = color
 
                 caras_con_datos.append((z_promedio, vertices_cara, color_cara))
+
+        # --- Inicio de Arillo (Toroide) ---
+        start_idx_arillo = len(vertices_3d)
+        polo_x = a + radio
+
+        centro_arillo = (polo_x, b, c)
+        radio_grande = 12
+        radio_pequeno = 3
+        pasos_u = 16
+        pasos_v = 8
+
+        for i in range(pasos_u + 1):
+            u = 2 * math.pi * i / pasos_u
+            cos_u = math.cos(u)
+            sin_u = math.sin(u)
+            for j in range(pasos_v + 1):
+                v = 2 * math.pi * j / pasos_v
+                cos_v = math.cos(v)
+                sin_v = math.sin(v)
+
+                p_x = (radio_grande + radio_pequeno * cos_v)
+
+                x_arillo = centro_arillo[0] + p_x * cos_u
+                y_arillo = centro_arillo[1] + p_x * sin_u
+                z_arillo = centro_arillo[2] + radio_pequeno * sin_v
+
+                vertices_3d.append((x_arillo, y_arillo, z_arillo))
+
+        for i in range(pasos_u):
+            for j in range(pasos_v):
+                idx1 = start_idx_arillo + i * (pasos_v + 1) + j
+                idx2 = start_idx_arillo + i * (pasos_v + 1) + (j + 1)
+                idx3 = start_idx_arillo + (i + 1) * (pasos_v + 1) + (j + 1)
+                idx4 = start_idx_arillo + (i + 1) * (pasos_v + 1) + j
+
+                vertices_cara_arillo = (idx1, idx2, idx3, idx4)
+
+                z_promedio_arillo = (
+                                            vertices_3d[idx1][2] +
+                                            vertices_3d[idx2][2] +
+                                            vertices_3d[idx3][2] +
+                                            vertices_3d[idx4][2]
+                                    ) / 4
+
+                caras_con_datos.append((z_promedio_arillo, vertices_cara_arillo, GRIS))
+        # --- Fin de Arillo ---
 
         return vertices_3d, caras_con_datos
 

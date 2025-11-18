@@ -38,6 +38,9 @@ vertices_base, caras_base = dibujador3D.crear_esfera_caras(
     pasos_phi
 )
 
+vertices_base = animador.rotacion_y_3d(vertices_base, 90, *centro_figura)
+vertices_base = animador.rotacion_x_3d(vertices_base, 270, *centro_figura)
+
 estado_animacion = "INICIAR_ROTAR_X"
 vertices_actuales = vertices_base
 vertices_transformados = vertices_base
