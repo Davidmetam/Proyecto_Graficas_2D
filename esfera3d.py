@@ -8,7 +8,7 @@ import random
 pygame.init()
 ancho, alto = 800, 600
 ventana = pygame.display.set_mode((ancho, alto))
-pygame.display.set_caption("Dibujo Esfera")
+pygame.display.set_caption("Dibujo Esfera Animada con Estrellas")
 reloj = pygame.time.Clock()
 
 Negro = (0, 0, 0)
@@ -16,6 +16,9 @@ BLANCO = (255, 255, 255)
 ROJO = (255, 0, 0)
 VERDE = (105, 163, 86)
 verde_esfera = (61, 138, 6)
+COLOR_ESTRELLA_RELLENO = (255, 255, 0)
+COLOR_ESTRELLA_BORDE = (245, 187, 39)
+PUNTO_PROYECCION_ESTRELLA = (0, 0, 10)
 
 fondo = pygame.image.load("fondonav2.jpg")
 fondo = pygame.transform.scale(fondo, (ancho, alto))
@@ -46,14 +49,18 @@ vertices_actuales = vertices_base
 vertices_transformados = vertices_base
 PASOS_ANIMACION = 150
 
+
 def calcular_centro(vertices):
     x_sum = sum(v[0] for v in vertices)
     y_sum = sum(v[1] for v in vertices)
     z_sum = sum(v[2] for v in vertices)
     n = len(vertices)
-    return (x_sum/n, y_sum/n, z_sum/n)
+    if n == 0:
+        return (0, 0, 0)
+    return (x_sum / n, y_sum / n, z_sum / n)
 
-estrellas = [
+
+estrellas_data = [
     (700, 200, 30, 35),
     (500, 150, 60, 25),
     (350, 500, 80, 35),
@@ -66,12 +73,43 @@ estrellas = [
     (550, 400, 60, 28)
 ]
 
+estrellas_data.sort(key=lambda s: s[3])
+
+estrellas_animadas = []
+
+for i in range(len(estrellas_data)):
+    x, y, z, s = estrellas_data[i]
+    centro = (x, y, z)
+    vertices, caras = dibujador3D.crear_estrella_3d(centro, s)
+    manager = Hilos3D(ventana)
+
+    anim_type = ''
+    if i < 3:
+        anim_type = 'scale'
+        manager.iniciar_escalado_ciclico_3d(escala_max=1.8, pasos_ciclo=100 + i * 20)
+    elif i < 6:
+        anim_type = 'rot_z'
+        manager.iniciar_rotacion_z_continua_3d(velocidad=1.0 + (i * 0.4))
+    else:
+        anim_type = 'rot_x'
+        manager.iniciar_rotacion_x_continua_3d(velocidad=0.8 + (i * 0.2))
+
+    estrellas_animadas.append({
+        'centro': centro,
+        'vertices_base': vertices,
+        'caras': caras,
+        'manager': manager,
+        'anim_type': anim_type
+    })
 
 Corriendo = True
 while Corriendo:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             Corriendo = False
+            manejador_hilos_3d.running = False
+            for estrella in estrellas_animadas:
+                estrella['manager'].running = False
 
     ventana.blit(fondo, (0, 0))
 
@@ -155,8 +193,35 @@ while Corriendo:
             verde_esfera
         )
 
-    for x, y, z, s in estrellas:
-        dibujador3D.dibujar_estrella_3d_superficie((x, y, z), s, (0, 0, 10))
+    for estrella in estrellas_animadas:
+        v_base = estrella['vertices_base']
+        centro = estrella['centro']
+        caras = estrella['caras']
+        manager = estrella['manager']
+        v_transformados = v_base
+
+        if estrella['anim_type'] == 'scale':
+            with manager.lock_escalado:
+                sx, sy, sz = manager.sx, manager.sy, manager.sz
+            v_transformados = animador.escalar_3d(v_base, sx, sy, sz, *centro)
+
+        elif estrella['anim_type'] == 'rot_z':
+            with manager.lock_rotacion_z:
+                angulo_z = manager.angulo_z
+            v_transformados = animador.rotacion_z_3d(v_base, angulo_z, *centro)
+
+        elif estrella['anim_type'] == 'rot_x':
+            with manager.lock_rotacion_x:
+                angulo_x = manager.angulo_x
+            v_transformados = animador.rotacion_y_3d(v_base, angulo_x, *centro)
+
+        dibujador3D.dibujar_estrella_3d_proyectada(
+            v_transformados,
+            caras,
+            PUNTO_PROYECCION_ESTRELLA,
+            COLOR_ESTRELLA_RELLENO,
+            COLOR_ESTRELLA_BORDE
+        )
 
     pygame.display.update()
     reloj.tick(60)

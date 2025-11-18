@@ -168,3 +168,68 @@ class Hilos3D:
 
         with self.lock_rotacion_z:
             self.angulo_z = float(self.destino_angulo_z)
+
+    def iniciar_escalado_ciclico_3d(self, escala_max=1.5, pasos_ciclo=100):
+        self.escala_max = escala_max
+        self.escala_min = 1.0
+        self.pasos_ciclo = pasos_ciclo
+        if self.hilo_escalado is None or not self.hilo_escalado.is_alive():
+            self.hilo_escalado = threading.Thread(target=self._ejecutar_escalado_ciclico_3d, daemon=True)
+            self.hilo_escalado.start()
+
+    def _ejecutar_escalado_ciclico_3d(self):
+        direccion = 1
+        pasos_medios = self.pasos_ciclo / 2
+        if pasos_medios == 0:
+            pasos_medios = 1
+
+        inc = (self.escala_max - self.escala_min) / pasos_medios
+
+        with self.lock_escalado:
+            self.sx = 1.0
+            self.sy = 1.0
+            self.sz = 1.0
+
+        while self.running:
+            with self.lock_escalado:
+                nueva_escala = self.sx + (inc * direccion)
+                if nueva_escala >= self.escala_max:
+                    nueva_escala = self.escala_max
+                    direccion = -1
+                elif nueva_escala <= self.escala_min:
+                    nueva_escala = self.escala_min
+                    direccion = 1
+
+                self.sx = nueva_escala
+                self.sy = nueva_escala
+                self.sz = nueva_escala
+
+            time.sleep(0.01)
+
+    def iniciar_rotacion_x_continua_3d(self, velocidad=1):
+        self.velocidad_rot_x = velocidad
+        if self.hilo_rotacion_x is None or not self.hilo_rotacion_x.is_alive():
+            self.hilo_rotacion_x = threading.Thread(target=self._ejecutar_rotacion_x_continua_3d, daemon=True)
+            self.hilo_rotacion_x.start()
+
+    def _ejecutar_rotacion_x_continua_3d(self):
+        with self.lock_rotacion_x:
+            self.angulo_x = 0.0
+        while self.running:
+            with self.lock_rotacion_x:
+                self.angulo_x = (self.angulo_x + self.velocidad_rot_x) % 360
+            time.sleep(0.01)
+
+    def iniciar_rotacion_z_continua_3d(self, velocidad=1):
+        self.velocidad_rot_z = velocidad
+        if self.hilo_rotacion_z is None or not self.hilo_rotacion_z.is_alive():
+            self.hilo_rotacion_z = threading.Thread(target=self._ejecutar_rotacion_z_continua_3d, daemon=True)
+            self.hilo_rotacion_z.start()
+
+    def _ejecutar_rotacion_z_continua_3d(self):
+        with self.lock_rotacion_z:
+            self.angulo_z = 0.0
+        while self.running:
+            with self.lock_rotacion_z:
+                self.angulo_z = (self.angulo_z + self.velocidad_rot_z) % 360
+            time.sleep(0.01)

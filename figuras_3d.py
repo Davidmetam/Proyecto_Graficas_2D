@@ -330,7 +330,6 @@ class Figuras3D(Figuras):
 
                 caras_con_datos.append((z_promedio, vertices_cara, color_cara))
 
-        # --- Inicio de Arillo (Toroide) ---
         start_idx_arillo = len(vertices_3d)
         polo_x = a + radio
 
@@ -374,7 +373,6 @@ class Figuras3D(Figuras):
                                     ) / 4
 
                 caras_con_datos.append((z_promedio_arillo, vertices_cara_arillo, GRIS))
-        # --- Fin de Arillo ---
 
         return vertices_3d, caras_con_datos
 
@@ -401,8 +399,8 @@ class Figuras3D(Figuras):
             y = cy + r * math.sin(ang_i)
             vertices2d.append((x, y, cz))
 
-        centro_frente = (cx, cy, cz - escala * 0.8)
-        centro_atras = (cx, cy, cz + escala * 0.8)
+        centro_frente = (cx, cy, cz - escala * 0.3)
+        centro_atras = (cx, cy, cz + escala * 0.3)
 
         vertices = vertices2d + [centro_frente, centro_atras]
 
@@ -419,9 +417,10 @@ class Figuras3D(Figuras):
         return vertices, caras
 
 
-    def dibujar_estrella_3d_superficie(self, centro, escala, punto_de_proyeccion):
-        vertices, caras = self.crear_estrella_3d(centro, escala)
+    def dibujar_estrella_3d_proyectada(self, vertices, caras, punto_de_proyeccion, color_relleno, color_borde):
         Xp, Yp, Zp = punto_de_proyeccion
+        if Zp == 0:
+            Zp = 0.001
 
         v2d = []
         for x, y, z in vertices:
@@ -439,7 +438,14 @@ class Figuras3D(Figuras):
 
         for _, (a, b, c) in orden:
             pts = [v2d[a], v2d[b], v2d[c]]
-            self.relleno_scanline(pts, (255, 255, 0))
-            self.dibujar_linea_dda(pts[0][0], pts[0][1], pts[1][0], pts[1][1], (245, 187, 39))
-            self.dibujar_linea_dda(pts[1][0], pts[1][1], pts[2][0], pts[2][1], (245, 187, 39))
-            self.dibujar_linea_dda(pts[2][0], pts[2][1], pts[0][0], pts[0][1], (245, 187, 39))
+            self.relleno_scanline(pts, color_relleno)
+            self.dibujar_linea_dda(pts[0][0], pts[0][1], pts[1][0], pts[1][1], color_borde)
+            self.dibujar_linea_dda(pts[1][0], pts[1][1], pts[2][0], pts[2][1], color_borde)
+            self.dibujar_linea_dda(pts[2][0], pts[2][1], pts[0][0], pts[0][1], color_borde)
+
+
+    def dibujar_estrella_3d_superficie(self, centro, escala, punto_de_proyeccion):
+        vertices, caras = self.crear_estrella_3d(centro, escala)
+        color_relleno = (255, 255, 0)
+        color_borde = (245, 187, 39)
+        self.dibujar_estrella_3d_proyectada(vertices, caras, punto_de_proyeccion, color_relleno, color_borde)
