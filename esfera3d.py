@@ -122,10 +122,8 @@ while Corriendo:
 
     ventana.blit(fondo, (0, 0))
 
-    # Calcular tiempo para animaciones
     tiempo_actual = time.time() - tiempo_inicio
 
-    # Animar la posición de la luz en círculo
     angulo_luz += 0.02
     radio_luz = 200
     luz_x = luz_base_x + radio_luz * math.cos(angulo_luz)
@@ -135,7 +133,6 @@ while Corriendo:
 
     centro_actual = calcular_centro(vertices_actuales)
 
-    # Estados de animación (igual que antes)
     if estado_animacion == "INICIAR_TRASLACION":
         manejador_hilos_3d.iniciar_traslacion_3d(tx_final=-350, ty_final=0, tz_final=0, pasos=PASOS_ANIMACION)
         estado_animacion = "DIBUJAR_TRASLACION"
@@ -206,7 +203,6 @@ while Corriendo:
                 vertices_base = vertices_actuales
                 estado_animacion = "INICIAR_ROTAR_X"
 
-    # Dibujar esfera con iluminación
     if vertices_transformados:
         dibujador3D._proyectar_y_dibujar_superficie_con_iluminacion(
             vertices_transformados,
@@ -217,7 +213,6 @@ while Corriendo:
             tiempo=tiempo_actual
         )
 
-    # Dibujar estrellas con brillo
     for estrella in estrellas_animadas:
         v_base = estrella['vertices_base']
         centro = estrella['centro']
@@ -240,7 +235,6 @@ while Corriendo:
                 angulo_x = manager.angulo_x
             v_transformados = animador.rotacion_y_3d(v_base, angulo_x, *centro)
 
-        # Dibujar estrella con iluminación y brillo
         dibujador3D.dibujar_estrella_3d_con_brillo(
             v_transformados,
             caras,
