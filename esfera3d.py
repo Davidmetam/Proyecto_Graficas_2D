@@ -4,11 +4,13 @@ from figuras_3d import Figuras3D
 from animacion import Animacion
 from hilos_3d import Hilos3D
 import random
+import time
+import math
 
 pygame.init()
 ancho, alto = 800, 600
 ventana = pygame.display.set_mode((ancho, alto))
-pygame.display.set_caption("Dibujo Esfera Animada con Estrellas")
+pygame.display.set_caption("Esfera Navideña Animada con Iluminación")
 reloj = pygame.time.Clock()
 
 Negro = (0, 0, 0)
@@ -34,11 +36,17 @@ radio = 100
 pasos_theta = 40
 pasos_phi = 40
 
-vertices_base, caras_base = dibujador3D.crear_esfera_caras(
+luz_base_x = 400
+luz_base_y = 200
+luz_base_z = 300
+angulo_luz = 0
+
+vertices_base, caras_base = dibujador3D.crear_esfera_caras_navideña(
     centro_figura,
     radio,
     pasos_theta,
-    pasos_phi
+    pasos_phi,
+    tiempo=0
 )
 
 vertices_base = animador.rotacion_y_3d(vertices_base, 90, *centro_figura)
@@ -49,6 +57,8 @@ vertices_actuales = vertices_base
 vertices_transformados = vertices_base
 PASOS_ANIMACION = 150
 
+tiempo_inicio = time.time()
+
 
 def calcular_centro(vertices):
     x_sum = sum(v[0] for v in vertices)
@@ -58,7 +68,6 @@ def calcular_centro(vertices):
     if n == 0:
         return (0, 0, 0)
     return (x_sum / n, y_sum / n, z_sum / n)
-
 
 estrellas_data = [
     (700, 200, 30, 35),
@@ -113,8 +122,20 @@ while Corriendo:
 
     ventana.blit(fondo, (0, 0))
 
+    # Calcular tiempo para animaciones
+    tiempo_actual = time.time() - tiempo_inicio
+
+    # Animar la posición de la luz en círculo
+    angulo_luz += 0.02
+    radio_luz = 200
+    luz_x = luz_base_x + radio_luz * math.cos(angulo_luz)
+    luz_y = luz_base_y + radio_luz * math.sin(angulo_luz)
+    luz_z = luz_base_z
+    luz_pos = (luz_x, luz_y, luz_z)
+
     centro_actual = calcular_centro(vertices_actuales)
 
+    # Estados de animación (igual que antes)
     if estado_animacion == "INICIAR_TRASLACION":
         manejador_hilos_3d.iniciar_traslacion_3d(tx_final=-350, ty_final=0, tz_final=0, pasos=PASOS_ANIMACION)
         estado_animacion = "DIBUJAR_TRASLACION"
@@ -185,14 +206,18 @@ while Corriendo:
                 vertices_base = vertices_actuales
                 estado_animacion = "INICIAR_ROTAR_X"
 
+    # Dibujar esfera con iluminación
     if vertices_transformados:
-        dibujador3D._proyectar_y_dibujar_superficie(
+        dibujador3D._proyectar_y_dibujar_superficie_con_iluminacion(
             vertices_transformados,
             caras_base,
             punto_de_proyeccion_figura,
-            verde_esfera
+            luz_pos,
+            usar_textura=True,
+            tiempo=tiempo_actual
         )
 
+    # Dibujar estrellas con brillo
     for estrella in estrellas_animadas:
         v_base = estrella['vertices_base']
         centro = estrella['centro']
@@ -215,12 +240,13 @@ while Corriendo:
                 angulo_x = manager.angulo_x
             v_transformados = animador.rotacion_y_3d(v_base, angulo_x, *centro)
 
-        dibujador3D.dibujar_estrella_3d_proyectada(
+        # Dibujar estrella con iluminación y brillo
+        dibujador3D.dibujar_estrella_3d_con_brillo(
             v_transformados,
             caras,
             PUNTO_PROYECCION_ESTRELLA,
-            COLOR_ESTRELLA_RELLENO,
-            COLOR_ESTRELLA_BORDE
+            luz_pos,
+            tiempo=tiempo_actual
         )
 
     pygame.display.update()
